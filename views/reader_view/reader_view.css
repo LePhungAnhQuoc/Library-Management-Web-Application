@@ -1,0 +1,104 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f7f6;
+}
+
+.page-content {
+    padding: 30px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.page-title {
+    margin-bottom: 20px;
+    color: #1d4d4f;
+}
+
+.card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.reader-form {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.reader-form input {
+    flex: 1 1 220px;
+    padding: 12px 14px;
+    border: 1px solid #dce6e4;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.reader-form button {
+    background: #20b887;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 20px;
+    cursor: pointer;
+}
+
+.reader-form button:hover {
+    background: #178d6a;
+}
+
+.reader-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+}
+
+.reader-table th,
+.reader-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #edf1f0;
+    text-align: left;
+}
+
+.reader-table th {
+    background: #f6fbfa;
+    color: #1d4d4f;
+}
+
+.reader-name {
+    font-weight: 600;
+    color: #1d4d4f;
+}
+
+.empty-message {
+    text-align: center;
+    color: #7a8b8c;
+    padding: 18px;
+}
+
+.error {
+    background: #fff1f0;
+    color: #d32f2f;
+    border: 1px solid #f5c6c7;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 18px;
+}
+
+.success {
+    background: #ecfdf5;
+    color: #13795b;
+    border: 1px solid #b7ebd4;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 18px;
+}

@@ -5,12 +5,6 @@ require_once __DIR__ . '/../controllers/BookController.php';
 
 session_start();
 
-// Ensure the user is logged in before handling route switches
-if (!isset($_SESSION['user_id'])) {
-    header('Location: index.php?action=login');
-    exit;
-}
-
 // Database Connection
 $database = new Database();
 $db = $database->connect();
@@ -30,6 +24,11 @@ switch ($action) {
         break;
 
     case 'dashboard':
+        // Ensure the user is logged in before handling route switches
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: index.php?action=login');
+            exit;
+        }
         require_once __DIR__ . '/../views/dashboard.php';
         break;
     default:

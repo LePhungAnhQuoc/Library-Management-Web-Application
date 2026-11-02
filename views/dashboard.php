@@ -1,14 +1,8 @@
 <?php
 require_once __DIR__ . '/../controllers/BookController.php';
+require_once __DIR__ . '/../controllers/ReaderController.php';
 
 $baseUrl = 'index.php?action=dashboard&'; // Base URL for routing
-class ReaderController
-{
-    public function index()
-    {
-        return "<h2 style='padding:20px;'>Reader Management Page (ReaderController)</h2>";
-    }
-}
 
 // 1. Determine active page route from URL query parameter
 $currentPage = isset($_GET['page']) ? $_GET['page'] : 'book';
