@@ -8,43 +8,37 @@ class BookController
     private $idPrefix = 'BT';
     private $maxIndexId = -1;
     private $isDataFetch = false;
+    private $books = [];
 
-    private function GenerateId()
+    private function loadBooks(): array
     {
-        if ($this->isDataFetch == false) {
-            return null;
+        if (!empty($this->books)) {
+            return $this->books;
         }
 
-        if (empty($this->books)) {
-            // Fallback ID if the list is completely empty
-            return $this->idPrefix . '01';
-        }
+        $database = new Database();
+        $db = $database->connect();
+        $bookModel = new Book($db);
 
-        if ($this->maxIndexId == -1) {
-            $this->maxIndexId = 0;
+        $this->books = $bookModel->getAll();
+        $this->isDataFetch = true;
 
-            foreach ($this->books as $book) {
-                $indexIdStr = str_replace($this->idPrefix, "", $book['Id']);
-                $indexId = (int) $indexIdStr;
-
-                // Find the maximum tail number
-                if ($indexId > $this->maxIndexId) {
-                    $this->maxIndexId = $indexId;
-                }
-            }
-        }
-
-        // Increment the highest tail number by 1
-        $nextIndex = $this->maxIndexId + 1;
-
-        return $this->idPrefix . str_pad($nextIndex, 2, '0', STR_PAD_LEFT);
+        return $this->books;
     }
 
     private function validate($book): bool
     {
-        if (empty($book->name))
+        if (empty($book->title))
             return false;
-        if (empty($book->idcategory))
+        if (empty($book->author))
+            return false;
+        if (empty($book->isbn))
+            return false;
+        if (empty($book->category))
+            return false;
+        if (empty($book->genre))
+            return false;
+        if (empty($book->format))
             return false;
         return true;
     }
@@ -60,9 +54,8 @@ class BookController
         $success_message = '';
         $error_message = '';
 
-        // Fetch data to display
-        $this->books = $bookModel->getAll();
-        $this->isDataFetch = true;
+        // Reuse the cached books instead of loading them again
+        $books = $this->loadBooks();
         $this->categories = $categoryModel->getAll();
 
         $categoryMap = [];
@@ -73,24 +66,39 @@ class BookController
         // Handle POST submission
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $newBook = new Book($db);
-            $newBook->id = $this->GenerateId();
-            if ($newBook->id != null) {
-                $newBook->name = trim($_POST['name'] ?? '');
-                $newBook->idcategory = trim($_POST['category'] ?? '');
+            $newBook->title = trim($_POST['title'] ?? '');
+            $newBook->author = trim($_POST['author'] ?? '');
+            $newBook->isbn = trim($_POST['isbn'] ?? '');
+            $newBook->category = trim($_POST['category'] ?? '');
+            $newBook->genre = trim($_POST['genre'] ?? '');
+            $newBook->format = trim($_POST['format'] ?? '');
+            $newBook->status = trim($_POST['status'] ?? 'Available');
+            $newBook->summary = trim($_POST['summary'] ?? '');
+            $newBook->emoji = trim($_POST['emoji'] ?? '');
 
-                if ($this->validate($newBook)) {
-                    if ($bookModel->create($newBook)) {
-                        $success_message = "New book added successfully!";
-                    } else {
-                        $error_message = "Failed to insert the book.";
-                    }
+            if ($this->validate($newBook)) {
+                if ($bookModel->create($newBook)) {
+                    $success_message = "New book added successfully!";
+                    $this->books[] = [
+                        'id' => $newBook->id,
+                        'title' => $newBook->title,
+                        'author' => $newBook->author,
+                        'isbn' => $newBook->isbn,
+                        'category' => $newBook->category,
+                        'genre' => $newBook->genre,
+                        'format' => $newBook->format,
+                        'status' => $newBook->status,
+                        'summary' => $newBook->summary,
+                        'emoji' => $newBook->emoji,
+                    ];
                 } else {
-                    $error_message = "Please enter all required fields!";
+                    $error_message = "Failed to insert the book.";
                 }
+            } else {
+                $error_message = "Please enter all required fields!";
             }
         }
 
-        $books = $this->books;
         $categories = $this->categories;
 
         // 1. Turn on output buffering
@@ -99,6 +107,36 @@ class BookController
         require_once __DIR__ . '/../views/book_view/book_view.php';
 
         // 3. Get the contents of the buffer and clean it, returning it as a string
+        return ob_get_clean();
+    }
+
+    public function browse()
+    {
+        $books = $this->loadBooks();
+
+        $keyword = trim($_GET['keyword'] ?? '');
+
+        $filteredBooks = $books;
+
+        if ($keyword !== '') {
+            $filteredBooks = array_values(array_filter($books, function ($book) use ($keyword) {
+                $searchTarget = strtolower(
+                    $book['title'] . ' ' .
+                    $book['author'] . ' ' .
+                    $book['isbn'] . ' ' .
+                    $book['category']
+                );
+
+                return strpos($searchTarget, strtolower($keyword)) !== false;
+            }));
+        }
+
+        usort($filteredBooks, function ($first, $second) {
+            return strcmp($first['title'], $second['title']);
+        });
+
+        ob_start();
+        require_once __DIR__ . '/../views/book_view/search_browse.php';
         return ob_get_clean();
     }
 }

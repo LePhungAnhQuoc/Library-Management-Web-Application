@@ -14,6 +14,10 @@ switch ($currentPage) {
         $controller = new ReaderController();
         $content = $controller->index();
         break;
+    case 'search':
+        $controller = new BookController();
+        $content = $controller->browse();
+        break;
     case 'book':
     default:
         $controller = new BookController();
@@ -27,6 +31,13 @@ $menuItems = [
         'title' => 'Book Management',
         'slug' => 'book',
         'icon' => 'fa-solid fa-book',
+        'expanded' => false,
+        'submenu' => []
+    ],
+    [
+        'title' => 'Search & Browse',
+        'slug' => 'search',
+        'icon' => 'fa-solid fa-magnifying-glass',
         'expanded' => false,
         'submenu' => []
     ],

@@ -23,15 +23,22 @@
 
         <div class="card">
             <form method="POST" action="" class="book-form">
-                <input type="text" name="name" placeholder="Type a book name..." required>
-                <select name="category" id="category" required>
-                    <option value="" disabled selected>-- Select a category --</option>
-                    <?php foreach ($categories as $cat): ?>
-                        <option value="<?php echo htmlspecialchars($cat['Id']); ?>">
-                            <?php echo htmlspecialchars($cat['Name']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <input type="text" name="title" placeholder="Book title" required>
+                <input type="text" name="author" placeholder="Author" required>
+                <input type="text" name="isbn" placeholder="ISBN" required>
+                <input type="text" name="category" placeholder="Category" required>
+                <input type="text" name="genre" placeholder="Genre" required>
+                <input type="text" name="format" placeholder="Format" required>
+
+                <div class="book-form-row">
+                    <select name="status" id="status" required>
+                        <option value="Available" selected>Available</option>
+                        <option value="Borrowed">Borrowed</option>
+                    </select>
+                    <input type="text" name="emoji" placeholder="Emoji (optional)">
+                </div>
+
+                <textarea name="summary" placeholder="Summary"></textarea>
                 <button type="submit">Add new book</button>
             </form>
         </div>
@@ -41,28 +48,35 @@
             <table class="book-table">
                 <thead>
                     <tr>
-                        <th>Book Title</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>ISBN</th>
                         <th>Category</th>
+                        <th>Genre</th>
+                        <th>Format</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (!empty($books)): ?>
                         <?php foreach ($books as $item): ?>
                             <tr>
-                                <td class="book-title"><?php echo htmlspecialchars($item['Name']); ?></td>
+                                <td><?php echo htmlspecialchars($item['title'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($item['author'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($item['isbn'] ?? ''); ?></td>
                                 <td>
                                     <span class="category-badge">
-                                        <?php
-                                        $catId = $item['IdCategory'];
-                                        echo htmlspecialchars($categoryMap[$catId] ?? 'Unknown Category');
-                                        ?>
+                                        <?php echo htmlspecialchars($item['category'] ?? 'Unknown Category'); ?>
                                     </span>
                                 </td>
+                                <td><?php echo htmlspecialchars($item['genre'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($item['format'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($item['status'] ?? 'Available'); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="2" class="empty-message">No books found.</td>
+                            <td colspan="7" class="empty-message">No books found.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
