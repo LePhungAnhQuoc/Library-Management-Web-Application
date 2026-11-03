@@ -55,6 +55,7 @@
                         <th>Genre</th>
                         <th>Format</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,11 +73,14 @@
                                 <td><?php echo htmlspecialchars($item['genre'] ?? ''); ?></td>
                                 <td><?php echo htmlspecialchars($item['format'] ?? ''); ?></td>
                                 <td><?php echo htmlspecialchars($item['status'] ?? 'Available'); ?></td>
+                                <td>
+                                    <a href="index.php?action=dashboard&page=detail&id=<?php echo (int)($item['id'] ?? 0); ?>" class="table-detail-link">View details</a>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7" class="empty-message">No books found.</td>
+                            <td colspan="8" class="empty-message">No books found.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

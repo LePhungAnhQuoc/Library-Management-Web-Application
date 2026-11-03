@@ -18,6 +18,10 @@ switch ($currentPage) {
         $controller = new BookController();
         $content = $controller->browse();
         break;
+    case 'detail':
+        $controller = new BookController();
+        $content = $controller->detail();
+        break;
     case 'book':
     default:
         $controller = new BookController();

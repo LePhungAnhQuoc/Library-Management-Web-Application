@@ -55,7 +55,7 @@
 
                                 <div class="card-actions">
                                     <button type="button" class="primary-button">Reserve</button>
-                                    <button type="button" class="secondary-button">View details</button>
+                                    <a class="secondary-button" href="index.php?action=dashboard&page=detail&id=<?php echo (int)($book['id'] ?? 0); ?>">View details</a>
                                 </div>
                             </div>
                         </article>

@@ -139,4 +139,23 @@ class BookController
         require_once __DIR__ . '/../views/book_view/search_browse.php';
         return ob_get_clean();
     }
+
+    public function detail()
+    {
+        $database = new Database();
+        $db = $database->connect();
+        $bookModel = new Book($db);
+
+        $bookId = $_GET['id'] ?? $_GET['book_id'] ?? 0;
+        $bookId = (int) $bookId;
+        $book = $bookId > 0 ? $bookModel->getById($bookId) : null;
+
+        if ($book === false) {
+            $book = null;
+        }
+
+        ob_start();
+        require_once __DIR__ . '/../views/book_view/book_detail.php';
+        return ob_get_clean();
+    }
 }

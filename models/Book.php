@@ -29,6 +29,16 @@ class Book
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getById($id)
+    {
+        $query = "SELECT * FROM " . $this->table . " WHERE id = :id LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     // Insert a new book
     public function create($book)
     {
