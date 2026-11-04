@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../controllers/BookController.php';
 require_once __DIR__ . '/../controllers/ReaderController.php';
+require_once __DIR__ . '/../controllers/LoanController.php';
 
 $baseUrl = 'index.php?action=dashboard&'; // Base URL for routing
 
@@ -13,6 +14,10 @@ switch ($currentPage) {
     case 'reader':
         $controller = new ReaderController();
         $content = $controller->index();
+        break;
+    case 'account':
+        $controller = new LoanController();
+        $content = $controller->dashboard();
         break;
     case 'search':
         $controller = new BookController();
@@ -31,6 +36,13 @@ switch ($currentPage) {
 
 // 3. Menu configuration with slugs for routing
 $menuItems = [
+    [
+        'title' => 'My Account',
+        'slug' => 'account',
+        'icon' => 'fa-solid fa-user',
+        'expanded' => false,
+        'submenu' => []
+    ],
     [
         'title' => 'Book Management',
         'slug' => 'book',

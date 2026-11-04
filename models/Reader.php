@@ -26,6 +26,16 @@ class Reader
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getById($id)
+    {
+        $query = "SELECT * FROM " . $this->table . " WHERE Id = :id LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(':id', (int) $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     // Insert a new reader
     public function create($reader)
     {

@@ -26,6 +26,15 @@ class BookController
         return $this->books;
     }
 
+    public function CreateBookMap($books): array
+    {
+        $bookMap = [];
+        foreach ($books as $book) {
+            $bookMap[(int) ($book['id'] ?? $book['Id'] ?? 0)] = $book;
+        }
+        return $bookMap;
+    }
+
     private function validate($book): bool
     {
         if (empty($book->title))
