@@ -1,14 +1,17 @@
 <?php
 require_once __DIR__ . '/../models/User.php';
 
-class AuthController {
+class AuthController
+{
     private $userModel;
 
-    public function __construct($pdo) {
+    public function __construct($pdo)
+    {
         $this->userModel = new User($pdo);
     }
 
-    public function login() {
+    public function login()
+    {
         $error = '';
 
         // Handle Form Submission
@@ -23,6 +26,9 @@ class AuthController {
 
                 // Verify user existence and password hash
                 if ($user && $this->userModel->verifyPassword($password, $user['Password'])) {
+                    // Regenerate session ID to prevent session fixation attacks
+                    session_regenerate_id(true);
+
                     // Start session and save user info
                     if (session_status() === PHP_SESSION_NONE) {
                         session_start();
@@ -40,14 +46,32 @@ class AuthController {
         }
 
         // Render the view with potential error message
-        require __DIR__ . '/../views/login.php';
+        require __DIR__ . '/../views/login/login.php';
     }
 
-    public function logout() {
+    public function logout()
+    {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
+
+        $_SESSION = [];
+        session_unset();
         session_destroy();
+
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
+            );
+        }
+
         header('Location: index.php?action=login');
         exit;
     }

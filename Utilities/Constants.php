@@ -1,5 +1,5 @@
 <?php
 class Constants
 {
-    const DEFAULT_LOAN_STATUS = 'Checked out';
+    public const DEFAULT_LOAN_STATUS = 'Checked out';
 }

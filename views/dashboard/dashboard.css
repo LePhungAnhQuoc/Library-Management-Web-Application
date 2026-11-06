@@ -1,0 +1,143 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
+
+body {
+    background-color: #f4f7f6;
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, #1fa37a 0%, #20b887 50%, #2ec893 100%);
+    color: #ffffff;
+    padding: 24px 16px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 20px;
+    padding-left: 8px;
+}
+
+.nav-list {
+    list-style: none;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.logout-item {
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 12px;
+}
+
+.logout-link {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.nav-item {
+    position: relative;
+    margin-bottom: 4px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.nav-icon {
+    width: 28px;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.9;
+}
+
+.nav-text {
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
+.chevron {
+    font-size: 11px;
+    opacity: 0.6;
+    transition: transform 0.2s ease;
+}
+
+.submenu-wrapper {
+    position: relative;
+    padding-left: 14px;
+}
+
+.submenu-wrapper::before {
+    content: '';
+    position: absolute;
+    left: 13px;
+    top: -5px;
+    bottom: 12px;
+    width: 1.5px;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.submenu {
+    list-style: none;
+    padding-left: 20px;
+}
+
+.submenu-item {
+    margin: 3px 0;
+}
+
+.submenu-link {
+    display: block;
+    padding: 9px 16px;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.submenu-link:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.submenu-item.active .submenu-link {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    font-weight: 700;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.main-content {
+    flex-grow: 1;
+}

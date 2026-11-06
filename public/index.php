@@ -29,7 +29,7 @@ switch ($action) {
             header('Location: index.php?action=login');
             exit;
         }
-        require_once __DIR__ . '/../views/dashboard.php';
+        require_once __DIR__ . '/../views/dashboard/dashboard.php';
         break;
     default:
         echo "404 Page Not Found";

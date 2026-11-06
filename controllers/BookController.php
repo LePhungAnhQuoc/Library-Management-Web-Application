@@ -30,7 +30,7 @@ class BookController
     {
         $bookMap = [];
         foreach ($books as $book) {
-            $bookMap[(int) ($book['id'] ?? $book['Id'] ?? 0)] = $book;
+            $bookMap[(int) ($book['id'] ?? 0)] = $book;
         }
         return $bookMap;
     }
