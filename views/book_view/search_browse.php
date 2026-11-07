@@ -25,6 +25,12 @@
         </form>
 
         <section class="results-panel">
+            <?php if (!empty($reserveMessage)): ?>
+                <div class="<?php echo $reserveSuccess ? 'success' : 'error'; ?>">
+                    <?php echo htmlspecialchars($reserveMessage); ?>
+                </div>
+            <?php endif; ?>
+
             <?php if (empty($books)): ?>
                 <div class="empty-state">
                     No books matched your search.
@@ -54,8 +60,18 @@
                                 </div>
 
                                 <div class="card-actions">
-                                    <button type="button" class="primary-button">Reserve</button>
-                                    <a class="secondary-button" href="index.php?action=dashboard&page=detail&id=<?php echo (int)($book['id'] ?? 0); ?>">View details</a>
+                                    <?php $bookId = (int) ($book['id'] ?? 0); ?>
+                                    <?php $isReserved = in_array($bookId, $reservedBookIds ?? [], true); ?>
+                                    <?php if ($isReserved): ?>
+                                        <button type="button" class="primary-button reserved-button" disabled>Reserved</button>
+                                    <?php else: ?>
+                                        <form method="POST" action="index.php?action=dashboard&page=search" style="display: inline;">
+                                            <input type="hidden" name="reserve_book_id" value="<?php echo $bookId; ?>">
+                                            <input type="hidden" name="keyword" value="<?php echo htmlspecialchars($_GET['keyword'] ?? ''); ?>">
+                                            <button type="submit" class="primary-button">Reserve</button>
+                                        </form>
+                                    <?php endif; ?>
+                                    <a class="secondary-button" href="index.php?action=dashboard&page=detail&id=<?php echo $bookId; ?>">View details</a>
                                 </div>
                             </div>
                         </article>

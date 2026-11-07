@@ -12,6 +12,12 @@
 
 <body>
     <div class="detail-page">
+        <?php if (!empty($reserveMessage)): ?>
+            <div class="<?php echo $reserveSuccess ? 'success' : 'error'; ?>">
+                <?php echo htmlspecialchars($reserveMessage); ?>
+            </div>
+        <?php endif; ?>
+
         <?php if (!empty($book)): ?>
             <div class="detail-shell">
                 <a class="back-link" href="index.php?action=dashboard&page=search">
@@ -23,7 +29,7 @@
 
                     <div class="detail-info">
                         <div class="book-badges">
-                            <span class="status-badge <?php echo strtolower($book['status'] ?? 'Available') === 'available' ? 'available' : 'borrowed'; ?>"><?php echo htmlspecialchars($book['status'] ?? 'Available'); ?></span>
+                            <span class="status-badge <?php echo strtolower($book['status'] ?? BookStatus::AVAILABLE->value) === strtolower(BookStatus::AVAILABLE->value) ? 'available' : 'borrowed'; ?>"><?php echo htmlspecialchars($book['status'] ?? BookStatus::AVAILABLE->value); ?></span>
                             <span class="category-badge-tag"><?php echo htmlspecialchars($book['category'] ?? 'General'); ?></span>
                             <span class="format-badge"><?php echo htmlspecialchars($book['format'] ?? 'Print'); ?></span>
                         </div>
@@ -38,7 +44,16 @@
                         </div>
 
                         <div class="card-actions">
-                            <button type="button" class="primary-button">Reserve</button>
+                            <?php $bookId = (int) ($book['id'] ?? 0); ?>
+                            <?php $isReserved = in_array($bookId, $reservedBookIds ?? [], true); ?>
+                            <?php if ($isReserved): ?>
+                                <button type="button" class="primary-button reserved-button" disabled>Reserved</button>
+                            <?php else: ?>
+                                <form method="POST" action="index.php?action=dashboard&page=detail&id=<?php echo $bookId; ?>" style="display: inline;">
+                                    <input type="hidden" name="reserve_book_id" value="<?php echo $bookId; ?>">
+                                    <button type="submit" class="primary-button">Reserve</button>
+                                </form>
+                            <?php endif; ?>
                             <a class="secondary-button" href="index.php?action=dashboard&page=search">Browse more</a>
                         </div>
                     </div>
@@ -53,7 +68,7 @@
                     <section class="detail-grid">
                         <div class="detail-card">
                             <span class="detail-card-label">Availability</span>
-                            <strong><?php echo htmlspecialchars($book['status'] ?? 'Available'); ?></strong>
+                            <strong><?php echo htmlspecialchars($book['status'] ?? BookStatus::AVAILABLE->value); ?></strong>
                         </div>
                         <div class="detail-card">
                             <span class="detail-card-label">Format</span>

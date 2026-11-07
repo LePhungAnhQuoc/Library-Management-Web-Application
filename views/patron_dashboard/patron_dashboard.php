@@ -71,7 +71,7 @@ $successMessage = $successMessage ?? '';
 
                 <label>
                     <span>Due date</span>
-                    <input type="date" name="due_date" value="<?php echo date('Y-m-d', strtotime('+14 days')); ?>" required>
+                    <input type="date" name="due_date" value="<?php echo date('Y-m-d', strtotime('+' . Constants::LOAN_DAYS . ' days')); ?>" required>
                 </label>
 
                 <label>

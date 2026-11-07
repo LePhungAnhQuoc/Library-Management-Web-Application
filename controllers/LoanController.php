@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/Database.php';
+require_once __DIR__ . '/../Utilities/Constants.php';
 require_once __DIR__ . '/../Utilities/Enums.php';
 require_once __DIR__ . '/../models/Loan.php';
 require_once __DIR__ . '/../models/Book.php';
@@ -15,8 +16,7 @@ class LoanController
     public function __construct()
     {
         $database = new Database();
-        $db = $database->connect();
-        $this->db = $db;
+        $this->db = $database->connect();
     }
 
     public function dashboard()
@@ -230,5 +230,11 @@ class LoanController
         } catch (Exception $e) {
             return (string) $value;
         }
+    }
+
+    public function IsReturned($loan): bool
+    {
+        $status = strtolower(trim((string) ($loan['status'] ?? '')));
+        return $status === strtolower(LoanStatus::RETURNED->value) || $status === strtolower(LoanStatus::RETURNED_LATE->value);
     }
 }

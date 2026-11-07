@@ -33,9 +33,9 @@ class AuthController
                     if (session_status() === PHP_SESSION_NONE) {
                         session_start();
                     }
-                    $_SESSION['user_id'] = $user['Id'];
                     $_SESSION['user_email'] = $user['Email'];
-
+                    $_SESSION['user_id'] = $user['id'];
+                    
                     // Redirect to dashboard or home page
                     header('Location: index.php?action=dashboard');
                     exit;

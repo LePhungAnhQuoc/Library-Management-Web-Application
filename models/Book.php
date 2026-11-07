@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../Utilities/Enums.php';
+
 class Book
 {
     private $conn;
@@ -11,7 +13,7 @@ class Book
     public $category;
     public $genre;
     public $format;
-    public $status = 'Available';
+    public $status = BookStatus::AVAILABLE->value;
     public $summary;
     public $emoji;
 
@@ -40,23 +42,45 @@ class Book
     }
 
     // Insert a new book
-    public function create($book)
+    public function create($book): bool
     {
+        $bookController = new BookController();
+        if (!is_object($book)) {
+            return false;
+        }
+
+        $bookData = [
+            'title' => trim((string) ($book->title ?? '')),
+            'author' => trim((string) ($book->author ?? '')),
+            'isbn' => trim((string) ($book->isbn ?? '')),
+            'category' => trim((string) ($book->category ?? '')),
+            'genre' => trim((string) ($book->genre ?? '')),
+            'format' => trim((string) ($book->format ?? '')),
+            'status' => trim((string) ($book->status ?? '')),
+            'summary' => trim((string) ($book->summary ?? '')),
+            'emoji' => trim((string) ($book->emoji ?? '')),
+        ];
+
+        foreach ($bookData as $field => $value) {
+            if ($value === '') {
+                if ($field === 'summary' || $field === 'emoji') {
+                    continue;
+                }
+                return false;
+            }
+        }
+
+        if (!in_array($bookData['status'], [BookStatus::AVAILABLE->value, BookStatus::BORROWED->value], true)) {
+            return false;
+        }
+
+        if (!$bookController->ValidateISBN($bookData['isbn'])) {
+            return false;
+        }
+
         $query = "INSERT INTO " . $this->table . " (title, author, isbn, category, genre, format, status, summary, emoji) VALUES (:title, :author, :isbn, :category, :genre, :format, :status, :summary, :emoji)";
         $stmt = $this->conn->prepare($query);
 
-        $arrayValues = [
-            'title' => $book->title,
-            'author' => $book->author,
-            'isbn' => $book->isbn,
-            'category' => $book->category,
-            'genre' => $book->genre,
-            'format' => $book->format,
-            'status' => $book->status,
-            'summary' => $book->summary,
-            'emoji' => $book->emoji
-        ];
-
-        return $stmt->execute($arrayValues);
+        return $stmt->execute($bookData);
     }
 }

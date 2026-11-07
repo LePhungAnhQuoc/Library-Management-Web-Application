@@ -4,9 +4,16 @@ require_once __DIR__ . '/../models/Reader.php';
 
 class ReaderController
 {
+    private $db;
     private $maxIndexId = -1;
     private $isDataFetch = false;
     private $error_message = '';
+
+    public function __construct()
+    {
+        $database = new Database();
+        $this->db = $database->connect();
+    }
 
     private function GenerateId()
     {
@@ -55,8 +62,7 @@ class ReaderController
 
     public function index()
     {
-        $database = new Database();
-        $db = $database->connect();
+        $db = $this->db;
         $readerModel = new Reader($db);
 
         $success_message = '';

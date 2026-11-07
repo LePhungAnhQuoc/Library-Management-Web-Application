@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../Utilities/Constants.php';
 require_once __DIR__ . '/../Utilities/Enums.php';
 
 class Loan
@@ -69,19 +70,42 @@ class Loan
 
     public function create(array $loanData): bool
     {
+        $bookId = (int) ($loanData['book_id'] ?? 0);
+        $readerId = (int) ($loanData['reader_id'] ?? 0);
+        $checkoutDate = $loanData['checkout_date'] ?? null;
+        $dueDate = $loanData['due_date'] ?? null;
+        $status = $loanData['status'] ?? LoanStatus::CHECKED_OUT->value;
+        $renewals = (int) ($loanData['renewals'] ?? -1);
+        $feeAmount = (float) ($loanData['fee_amount'] ?? -1);
+
+        if ($bookId <= 0 || $readerId <= 0) {
+            return false;
+        }
+
+        if (!strtotime($dueDate) || !strtotime($checkoutDate)) {
+            return false;
+        }
+
+        if ($status !== LoanStatus::CHECKED_OUT->value && $status !== LoanStatus::ON_HOLD->value) {
+            return false;
+        }
+        if ($renewals < 0 || $feeAmount < 0) {
+            return false;
+        }
+
         $query = "INSERT INTO " . $this->table . " (book_id, reader_id, checkout_date, due_date, status, renewals, fee_amount)
                   VALUES (:book_id, :reader_id, :checkout_date, :due_date, :status, :renewals, :fee_amount)";
 
         $stmt = $this->conn->prepare($query);
 
         return $stmt->execute([
-            ':book_id' => (int) ($loanData['book_id'] ?? 0),
-            ':reader_id' => (int) ($loanData['reader_id'] ?? 0),
-            ':checkout_date' => $loanData['checkout_date'] ?? date('Y-m-d'),
-            ':due_date' => $loanData['due_date'] ?? date('Y-m-d', strtotime('+14 days')),
-            ':status' => $loanData['status'] ?? LoanStatus::CHECKED_OUT->value,
-            ':renewals' => (int) ($loanData['renewals'] ?? 0),
-            ':fee_amount' => (float) ($loanData['fee_amount'] ?? 0.00),
+            ':book_id' => $bookId,
+            ':reader_id' => $readerId,
+            ':checkout_date' => $checkoutDate,
+            ':due_date' => $dueDate,
+            ':status' => $status,
+            ':renewals' => $renewals,
+            ':fee_amount' => $feeAmount,
         ]);
     }
 

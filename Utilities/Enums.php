@@ -1,4 +1,27 @@
 <?php
+enum BookStatus: string
+{
+    case AVAILABLE = 'Available';
+    case BORROWED = 'Borrowed';
+
+    public static function fromValue(?string $status): self
+    {
+        if ($status === null) {
+            return self::AVAILABLE;
+        }
+
+        $normalized = strtolower(trim($status));
+
+        foreach (self::cases() as $case) {
+            if (strtolower($case->value) === $normalized) {
+                return $case;
+            }
+        }
+
+        return self::AVAILABLE;
+    }
+}
+
 enum LoanStatus: string
 {
     case CHECKED_OUT = 'Checked out';

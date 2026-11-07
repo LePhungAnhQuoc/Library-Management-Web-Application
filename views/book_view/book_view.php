@@ -32,8 +32,10 @@
 
                 <div class="book-form-row">
                     <select name="status" id="status" required>
-                        <option value="Available" selected>Available</option>
-                        <option value="Borrowed">Borrowed</option>
+                        <?php foreach (BookStatus::cases() as $status): ?>
+                            <option value="<?php echo htmlspecialchars($status->value); ?>">
+                                <?php echo htmlspecialchars($status->value); ?></option>
+                        <?php endforeach; ?>
                     </select>
                     <input type="text" name="emoji" placeholder="Emoji (optional)">
                 </div>
@@ -72,9 +74,10 @@
                                 </td>
                                 <td><?php echo htmlspecialchars($item['genre'] ?? ''); ?></td>
                                 <td><?php echo htmlspecialchars($item['format'] ?? ''); ?></td>
-                                <td><?php echo htmlspecialchars($item['status'] ?? 'Available'); ?></td>
+                                <td><?php echo htmlspecialchars($item['status'] ?? BookStatus::AVAILABLE->value); ?></td>
                                 <td>
-                                    <a href="index.php?action=dashboard&page=detail&id=<?php echo (int)($item['id'] ?? 0); ?>" class="table-detail-link">View details</a>
+                                    <a href="index.php?action=dashboard&page=detail&id=<?php echo (int) ($item['id'] ?? 0); ?>"
+                                        class="table-detail-link">View details</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
