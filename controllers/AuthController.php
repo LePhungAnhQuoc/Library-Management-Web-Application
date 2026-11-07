@@ -13,11 +13,13 @@ class AuthController
     public function login()
     {
         $error = '';
+        $rememberedEmail = $_COOKIE['remembered_email'] ?? '';
 
         // Handle Form Submission
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = trim($_POST['email'] ?? '');
             $password = trim($_POST['password'] ?? '');
+            $rememberMe = isset($_POST['remember']) && $_POST['remember'] == '1';
 
             if (empty($email) || empty($password)) {
                 $error = 'Please fill in all required fields.';
@@ -26,6 +28,12 @@ class AuthController
 
                 // Verify user existence and password hash
                 if ($user && $this->userModel->verifyPassword($password, $user['Password'])) {
+                    if ($rememberMe) {
+                        setcookie('remembered_email', $email, time() + 60 * 60 * 24 * 30, '/');
+                    } else {
+                        setcookie('remembered_email', '', time() - 3600, '/');
+                    }
+
                     // Regenerate session ID to prevent session fixation attacks
                     session_regenerate_id(true);
 
@@ -35,7 +43,7 @@ class AuthController
                     }
                     $_SESSION['user_email'] = $user['Email'];
                     $_SESSION['user_id'] = $user['id'];
-                    
+
                     // Redirect to dashboard or home page
                     header('Location: index.php?action=dashboard');
                     exit;
@@ -58,6 +66,8 @@ class AuthController
         $_SESSION = [];
         session_unset();
         session_destroy();
+
+        setcookie('remembered_email', '', time() - 3600, '/');
 
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();

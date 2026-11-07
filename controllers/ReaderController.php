@@ -15,31 +15,6 @@ class ReaderController
         $this->db = $database->connect();
     }
 
-    private function GenerateId()
-    {
-        if ($this->isDataFetch == false) {
-            return null;
-        }
-
-        if (empty($this->readers)) {
-            return 1;
-        }
-
-        if ($this->maxIndexId == -1) {
-            $this->maxIndexId = 0;
-
-            foreach ($this->readers as $reader) {
-                $indexId = (int) $reader['Id'];
-
-                if ($indexId > $this->maxIndexId) {
-                    $this->maxIndexId = $indexId;
-                }
-            }
-        }
-
-        return $this->maxIndexId + 1;
-    }
-
     private function validate($reader): bool
     {
         if (empty($reader->FirstName))
@@ -73,26 +48,24 @@ class ReaderController
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $newReader = new Reader($db);
-            $newReader->Id = $this->GenerateId();
-            if ($newReader->Id != null) {
-                $newReader->FirstName = trim($_POST['firstName'] ?? '');
-                $newReader->LastName = trim($_POST['lastName'] ?? '');
-                $newReader->Email = trim($_POST['email'] ?? '');
-                $newReader->MembershipDate = trim($_POST['membershipDate'] ?? '');
-                $newReader->Status = trim($_POST['status'] ?? 'active');
-                $newReader->CreatedAt = date('Y-m-d H:i:s');
 
-                if ($this->validate($newReader)) {
-                    if ($readerModel->create($newReader)) {
-                        $success_message = "New reader added successfully!";
-                        $this->readers[] = (array) $newReader;
-                    } else {
-                        $this->error_message = "Failed to insert the reader.";
-                    }
+            $newReader->FirstName = trim($_POST['firstName'] ?? '');
+            $newReader->LastName = trim($_POST['lastName'] ?? '');
+            $newReader->Email = trim($_POST['email'] ?? '');
+            $newReader->MembershipDate = trim($_POST['membershipDate'] ?? '');
+            $newReader->Status = trim($_POST['status'] ?? 'active');
+            $newReader->CreatedAt = date('Y-m-d H:i:s');
+
+            if ($this->validate($newReader)) {
+                if ($readerModel->create($newReader)) {
+                    $success_message = "New reader added successfully!";
+                    $this->readers[] = (array) $newReader;
                 } else {
-                    if ($this->error_message === '') {
-                        $this->error_message = "Please enter all required fields!";
-                    }
+                    $this->error_message = "Failed to insert the reader.";
+                }
+            } else {
+                if ($this->error_message === '') {
+                    $this->error_message = "Please enter all required fields!";
                 }
             }
         }
