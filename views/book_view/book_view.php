@@ -47,47 +47,47 @@
 
         <div class="card">
             <h2>Saved Books</h2>
-            <table class="book-table">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Author</th>
-                        <th>ISBN</th>
-                        <th>Category</th>
-                        <th>Genre</th>
-                        <th>Format</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($books)): ?>
-                        <?php foreach ($books as $item): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($item['title'] ?? ''); ?></td>
-                                <td><?php echo htmlspecialchars($item['author'] ?? ''); ?></td>
-                                <td><?php echo htmlspecialchars($item['isbn'] ?? ''); ?></td>
-                                <td>
-                                    <span class="category-badge">
-                                        <?php echo htmlspecialchars($item['category'] ?? 'Unknown Category'); ?>
-                                    </span>
-                                </td>
-                                <td><?php echo htmlspecialchars($item['genre'] ?? ''); ?></td>
-                                <td><?php echo htmlspecialchars($item['format'] ?? ''); ?></td>
-                                <td><?php echo htmlspecialchars($item['status'] ?? BookStatus::AVAILABLE->value); ?></td>
-                                <td>
-                                    <a href="index.php?action=dashboard&page=detail&id=<?php echo (int) ($item['id'] ?? 0); ?>"
-                                        class="table-detail-link">View details</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
+            <div class="book-table-scroll">
+                <table class="book-table">
+                    <thead>
                         <tr>
-                            <td colspan="8" class="empty-message">No books found.</td>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>ISBN</th>
+                            <th>Category</th>
+                            <th>Format</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                         </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($books)): ?>
+                            <?php foreach ($books as $item): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($item['title'] ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($item['author'] ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($item['isbn'] ?? ''); ?></td>
+                                    <td>
+                                        <span class="category-badge">
+                                            <?php echo htmlspecialchars($item['category'] ?? 'Unknown Category'); ?>
+                                        </span>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($item['format'] ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($item['status'] ?? BookStatus::AVAILABLE->value); ?></td>
+                                    <td>
+                                        <a href="index.php?action=dashboard&page=detail&id=<?php echo (int) ($item['id'] ?? 0); ?>"
+                                            class="table-detail-link">View details</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="8" class="empty-message">No books found.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </body>

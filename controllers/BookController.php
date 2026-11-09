@@ -84,7 +84,7 @@ class BookController
 
         $categoryMap = [];
         foreach ($this->categories as $cat) {
-            $categoryMap[$cat['Id']] = $cat['Name'];
+            $categoryMap[$cat['id']] = $cat['name'];
         }
 
         // Handle POST submission

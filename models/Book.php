@@ -23,7 +23,7 @@ class Book
     }
 
     // Fetch all books from database
-    public function getAll()
+    public function getAll() : array
     {
         $query = "SELECT * FROM " . $this->table . " ORDER BY id";
         $stmt = $this->conn->prepare($query);

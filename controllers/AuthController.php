@@ -27,7 +27,7 @@ class AuthController
                 $user = $this->userModel->findUserByEmail($email);
 
                 // Verify user existence and password hash
-                if ($user && $this->userModel->verifyPassword($password, $user['Password'])) {
+                if ($user && $this->userModel->verifyPassword($password, $user['password'])) {
                     if ($rememberMe) {
                         setcookie('remembered_email', $email, time() + 60 * 60 * 24 * 30, '/');
                     } else {
@@ -41,7 +41,7 @@ class AuthController
                     if (session_status() === PHP_SESSION_NONE) {
                         session_start();
                     }
-                    $_SESSION['user_email'] = $user['Email'];
+                    $_SESSION['user_email'] = $user['email'];
                     $_SESSION['user_id'] = $user['id'];
 
                     // Redirect to dashboard or home page

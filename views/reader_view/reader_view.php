@@ -23,14 +23,10 @@
 
         <div class="card">
             <form method="POST" action="" class="reader-form">
-                <input type="text" name="firstName" placeholder="Type a reader first name..." required>
-                <input type="text" name="lastName" placeholder="Type a reader last name..." required>
+                <input type="text" name="first_name" placeholder="Type a reader first name..." required>
+                <input type="text" name="last_name" placeholder="Type a reader last name..." required>
                 <input type="email" name="email" placeholder="Type a reader email..." required>
-                <input type="date" name="membershipDate">
-                <select name="status">
-                    <option value="active" selected>Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
+                <input type="date" name="membership_date">
                 <button type="submit">Add new reader</button>
             </form>
         </div>
@@ -51,11 +47,11 @@
                     <?php if (!empty($readers)): ?>
                         <?php foreach ($readers as $item): ?>
                             <tr>
-                                <td class="reader-name"><?php echo htmlspecialchars($item['FirstName'] ?? ''); ?></td>
-                                <td><?php echo htmlspecialchars($item['LastName'] ?? ''); ?></td>
-                                <td><?php echo htmlspecialchars($item['Email'] ?? ''); ?></td>
-                                <td><?php echo htmlspecialchars($item['MembershipDate'] ?? ''); ?></td>
-                                <td><?php echo htmlspecialchars($item['Status'] ?? ''); ?></td>
+                                <td class="reader-name"><?php echo htmlspecialchars($item['first_name'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($item['last_name'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($item['email'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($item['membership_date'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($item['status'] ?? ''); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>

@@ -6,9 +6,45 @@ $loanRows = $loanRows ?? [];
 $holdRows = $holdRows ?? [];
 $historyRows = $historyRows ?? [];
 $feeRows = $feeRows ?? [];
-$formBookOptions = $formBookOptions ?? [];
-$formReaderOptions = $formReaderOptions ?? [];
 $successMessage = $successMessage ?? '';
+
+require_once __DIR__ . '/../loan_management/loan_slip_table.php';
+
+$currentLoansTable = new LoanSlipTable();
+$currentLoansTable->title = '';
+$currentLoansTable->loanRows = $loanRows;
+$currentLoansTable->emptyMessage = 'No active loans found.';
+$currentLoansTable->columns = [
+    ['label' => 'Title', 'key' => 'title'],
+    ['label' => 'Due date', 'key' => 'due_date'],
+    ['label' => 'Status', 'key' => 'status', 'type' => 'badge'],
+    ['label' => 'Renewals', 'key' => 'renewals', 'suffix' => ' of 2'],
+    ['label' => 'Action', 'type' => 'action'],
+];
+
+$activeHoldsTable = new LoanSlipTable();
+$activeHoldsTable->title = '';
+$activeHoldsTable->loanRows = $holdRows;
+$activeHoldsTable->emptyMessage = 'No active holds found.';
+$activeHoldsTable->columns = [
+    ['label' => 'Title', 'key' => 'title'],
+    ['label' => 'Held on', 'key' => 'held_on'],
+    ['label' => 'Due date', 'key' => 'due_date'],
+    ['label' => 'Status', 'key' => 'status', 'type' => 'badge'],
+    ['label' => 'Action', 'type' => 'action'],
+];
+
+$returnedItemsTable = new LoanSlipTable();
+$returnedItemsTable->title = '';
+$returnedItemsTable->loanRows = $historyRows;
+$returnedItemsTable->emptyMessage = 'No returned items yet.';
+$returnedItemsTable->columns = [
+    ['label' => 'Title', 'key' => 'title'],
+    ['label' => 'Due date', 'key' => 'due_date'],
+    ['label' => 'Returned', 'key' => 'returned_at'],
+    ['label' => 'Status', 'key' => 'status', 'type' => 'badge'],
+    ['label' => 'Fee', 'key' => 'amount'],
+];
 ?>
 
 <link rel="stylesheet" href="../views/patron_dashboard/patron_dashboard.css">
@@ -42,58 +78,6 @@ $successMessage = $successMessage ?? '';
         <?php endforeach; ?>
     </div>
 
-    <div class="loan-form-card">
-        <h2>Book loan form</h2>
-        <form method="POST" action="index.php?action=dashboard&page=account">
-            <div class="loan-form-grid">
-                <label>
-                    <span>Reader</span>
-                    <select name="reader_id" required>
-                        <?php foreach ($formReaderOptions as $reader): ?>
-                            <option value="<?php echo htmlspecialchars((string) ($reader['Id'] ?? $reader['id'] ?? '')); ?>">
-                                <?php echo htmlspecialchars(trim(($reader['FirstName'] ?? '') . ' ' . ($reader['LastName'] ?? '')) ?: 'Reader'); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </label>
-
-                <label>
-                    <span>Book</span>
-                    <select name="loan_book_id" required>
-                        <option value="">Select a book</option>
-                        <?php foreach ($formBookOptions as $book): ?>
-                            <option value="<?php echo htmlspecialchars((string) ($book['id'] ?? $book['Id'] ?? '')); ?>">
-                                <?php echo htmlspecialchars($book['title'] ?? 'Untitled'); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </label>
-
-                <label>
-                    <span>Due date</span>
-                    <input type="date" name="due_date" value="<?php echo date('Y-m-d', strtotime('+' . Constants::LOAN_DAYS . ' days')); ?>" required>
-                </label>
-
-                <label>
-                    <span>Renewals</span>
-                    <input type="number" name="renewals" min="0" max="2" value="0">
-                </label>
-
-                <label>
-                    <span>Status</span>
-                    <select name="status">
-                        <?php foreach (LoanStatus::cases() as $status): ?>
-                            <?php if ($status !== LoanStatus::RETURNED && $status !== LoanStatus::RETURNED_LATE): ?>
-                                <option value="<?php echo htmlspecialchars($status->value); ?>"><?php echo htmlspecialchars($status->value); ?></option>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    </select>
-                </label>
-            </div>
-            <button class="primary-button" type="submit">Create loan</button>
-        </form>
-    </div>
-
     <div class="tab-shell">
         <div class="tab-navigation" role="tablist" aria-label="Account sections">
             <button class="tab-button active" type="button" data-tab="loans">Current Loans</button>
@@ -103,106 +87,15 @@ $successMessage = $successMessage ?? '';
         </div>
 
         <section class="tab-panel active" id="panel-loans" data-panel="loans">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Due date</th>
-                        <th>Status</th>
-                        <th>Renewals</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($loanRows)): ?>
-                        <tr>
-                            <td colspan="5">No active loans found.</td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($loanRows as $loan): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($loan['title'] ?? 'Untitled'); ?></td>
-                                <td><?php echo htmlspecialchars($loan['due_date'] ?? '—'); ?></td>
-                                <td><span class="badge <?php echo htmlspecialchars($loan['badge_class'] ?? BadgeClass::INFO->value); ?>"><?php echo htmlspecialchars($loan['status'] ?? 'Checked out'); ?></span></td>
-                                <td><?php echo (int) ($loan['renewals'] ?? 0); ?> of 2</td>
-                                <td>
-                                    <form method="POST" style="display: inline;">
-                                        <input type="hidden" name="return_loan_id" value="<?php echo (int) ($loan['id'] ?? 0); ?>">
-                                        <button class="tiny-button primary" type="submit">Return</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+            <?php $currentLoansTable->render(); ?>
         </section>
 
         <section class="tab-panel" id="panel-holds" data-panel="holds">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Held on</th>
-                        <th>Due date</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($holdRows)): ?>
-                        <tr>
-                            <td colspan="5">No active holds found.</td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($holdRows as $hold): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($hold['title'] ?? 'Untitled'); ?></td>
-                                <td><?php echo htmlspecialchars($hold['held_on'] ?? '—'); ?></td>
-                                <td><?php echo htmlspecialchars($hold['due_date'] ?? '—'); ?></td>
-                                <td><span class="badge <?php echo htmlspecialchars($hold['badge_class'] ?? BadgeClass::WARNING->value); ?>"><?php echo htmlspecialchars($hold['status'] ?? 'On hold'); ?></span></td>
-                                <td>
-                                    <form method="POST" style="display: inline;">
-                                        <input type="hidden" name="return_loan_id" value="<?php echo (int) ($hold['id'] ?? 0); ?>">
-                                        <button class="tiny-button primary" type="submit">Release</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+            <?php $activeHoldsTable->render(); ?>
         </section>
 
         <section class="tab-panel" id="panel-history" data-panel="history">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Due date</th>
-                        <th>Returned</th>
-                        <th>Status</th>
-                        <th>Fee</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($historyRows)): ?>
-                        <tr>
-                            <td colspan="5">No returned items yet.</td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($historyRows as $entry): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($entry['title'] ?? 'Untitled'); ?></td>
-                                <td><?php echo htmlspecialchars($entry['due_date'] ?? '—'); ?></td>
-                                <td><?php echo htmlspecialchars($entry['returned_at'] ?? '—'); ?></td>
-                                <td><span class="badge <?php echo htmlspecialchars(BadgeClass::INFO->value); ?>"><?php echo htmlspecialchars($entry['status'] ?? 'Returned'); ?></span></td>
-                                <td><?php echo htmlspecialchars($entry['amount'] ?? '$0.00'); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+            <?php $returnedItemsTable->render(); ?>
         </section>
 
         <section class="tab-panel" id="panel-fees" data-panel="fees">

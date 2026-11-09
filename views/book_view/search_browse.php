@@ -24,6 +24,17 @@
             </div>
         </form>
 
+        <script>
+            const searchForm = document.querySelector('.search-form');
+            const searchInput = searchForm.querySelector('input[type="search"]');
+
+            searchInput.addEventListener('input', () => {
+                if (searchInput.value === '') {
+                    searchForm.requestSubmit();
+                }
+            });
+        </script>
+
         <section class="results-panel">
             <?php if (!empty($reserveMessage)): ?>
                 <div class="<?php echo $reserveSuccess ? 'success' : 'error'; ?>">

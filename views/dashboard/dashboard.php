@@ -16,6 +16,10 @@ switch ($currentPage) {
         $controller = new LoanController();
         $content = $controller->dashboard();
         break;
+    case 'loan':
+        $controller = new LoanController();
+        $content = $controller->management();
+        break;
     case 'search':
         $controller = new BookController();
         $content = $controller->browse();
@@ -23,6 +27,14 @@ switch ($currentPage) {
     case 'detail':
         $controller = new BookController();
         $content = $controller->detail();
+        break;
+    case 'logout':
+        // Database Connection
+        $database = new Database();
+        $db = $database->connect();
+
+        $controller = new AuthController($db);
+        $controller->logout();
         break;
     case 'book':
     default:
@@ -60,6 +72,20 @@ $menuItems = [
         'expanded' => false,
         'submenu' => []
     ],
+    [
+        'title' => 'Loan Management',
+        'slug' => 'loan',
+        'icon' => 'fa-solid fa-book-bookmark',
+        'expanded' => false,
+        'submenu' => []
+    ],
+     [
+        'title' => 'Log out',
+        'slug' => 'logout',
+        'icon' => 'fa-solid fa-sign-out-alt',
+        'expanded' => false,
+        'submenu' => []
+    ],
 ];
 ?>
 
@@ -82,7 +108,8 @@ $menuItems = [
             <?php foreach ($menuItems as $item): ?>
                 <?php $isMainActive = ($currentPage === $item['slug']); ?>
                 <li class="nav-item">
-                    <a href="<?= $baseUrl ?>page=<?= urlencode($item['slug']) ?>" class="nav-link <?= $isMainActive ? 'active' : '' ?>">
+                    <a href="<?= $baseUrl ?>page=<?= urlencode($item['slug']) ?>"
+                        class="nav-link <?= $isMainActive ? 'active' : '' ?>">
                         <span class="nav-icon"><i class="<?= $item['icon'] ?>"></i></span>
                         <span class="nav-text"><?= htmlspecialchars($item['title']) ?></span>
 
@@ -109,13 +136,6 @@ $menuItems = [
                     <?php endif; ?>
                 </li>
             <?php endforeach; ?>
-
-            <li class="nav-item logout-item">
-                <a href="index.php?action=logout" class="nav-link logout-link">
-                    <span class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i></span>
-                    <span class="nav-text">Logout</span>
-                </a>
-            </li>
         </ul>
     </aside>
 

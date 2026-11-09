@@ -19,9 +19,19 @@ class LoanController
         $this->db = $database->connect();
     }
 
+    private function handleLoanReturn($loanModel)
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['return_loan_id'])) {
+            $loanId = (int) ($_POST['return_loan_id'] ?? 0);
+            if ($loanId > 0) {
+                $returned = $loanModel->markReturned($loanId);
+                $_SESSION['loan_success'] = $returned ? 'Book returned successfully.' : 'Unable to process the return.';
+            }
+        }
+    }
+
     public function dashboard()
     {
-        $readerController = new ReaderController();
         $bookController = new BookController();
 
         $loanModel = new Loan($this->db);
@@ -35,49 +45,12 @@ class LoanController
         $this->allReaders = $readerModel->getAll();
         $this->allBooks = $bookModel->getAll();
         $allBooks = $this->allBooks;
-        $allReaders = $this->allReaders;
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['return_loan_id'])) {
-            $loanId = (int) ($_POST['return_loan_id'] ?? 0);
-            if ($loanId > 0) {
-                $returned = $loanModel->markReturned($loanId);
-                $_SESSION['loan_success'] = $returned ? 'Book returned successfully.' : 'Unable to process the return.';
-            }
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['loan_book_id'])) {
-            $bookId = (int) ($_POST['loan_book_id'] ?? 0);
-
-            // Use the reader_id from the form submission if available, otherwise default to the current readerId (current logged-in user)
-            $selectedReaderId = (int) ($_POST['reader_id'] ?? $readerId);
-            $dueDate = trim($_POST['due_date'] ?? '');
-            $status = trim($_POST['status'] ?? LoanStatus::CHECKED_OUT->value);
-            $renewals = (int) ($_POST['renewals'] ?? 0);
-
-            if ($bookId > 0 && $selectedReaderId > 0 && $dueDate !== '') {
-                $success = $loanModel->create([
-                    'book_id' => $bookId,
-                    'reader_id' => $selectedReaderId,
-                    'checkout_date' => date('Y-m-d'),
-                    'due_date' => $dueDate,
-                    'status' => $status,
-                    'renewals' => $renewals,
-                    'fee_amount' => 0.00,
-                ]);
-
-                if ($success) {
-                    $_SESSION['loan_success'] = 'Loan created successfully.';
-                } else {
-                    $_SESSION['loan_success'] = 'Unable to create the loan.';
-                }
-            } else {
-                $_SESSION['loan_success'] = 'Please select a book and due date.';
-            }
-        }
+        $this->handleLoanReturn($loanModel);
 
         // Determine the current reader based on the logged-in user or default to the first reader in the list
         $currentReader = $readerModel->GetById($readerId);
-        if ($currentReader === null && !empty($allReaders)) {
+        if ($currentReader === null && !empty($this->allReaders)) {
             return;
         }
 
@@ -172,12 +145,12 @@ class LoanController
             ];
         }
 
-        $memberName = trim(($currentReader['FirstName'] ?? '') . ' ' . ($currentReader['LastName'] ?? ''));
+        $memberName = trim(($currentReader['first_name'] ?? '') . ' ' . ($currentReader['last_name'] ?? ''));
         if ($memberName === '') {
             $memberName = 'name unknown';
         }
 
-        $memberId = $currentReader['Id'] ?? 'id unknown';
+        $memberId = $currentReader['id'] ?? 'id unknown';
         $memberNumber = 'Member #' . $memberId;
 
         $summaryCards = [
@@ -207,13 +180,103 @@ class LoanController
             ],
         ];
 
-        $formBookOptions = $allBooks;
-        $formReaderOptions = $allReaders;
         $successMessage = $_SESSION['loan_success'] ?? '';
         unset($_SESSION['loan_success']);
 
         ob_start();
         require_once __DIR__ . '/../views/patron_dashboard/patron_dashboard.php';
+
+        return ob_get_clean();
+    }
+
+    public function management()
+    {
+        $loanModel = new Loan($this->db);
+        $bookModel = new Book($this->db);
+        $readerModel = new Reader($this->db);
+        $userModel = new User($this->db);
+
+        $userId = $_SESSION['user_id'] ?? 0;
+        if ($userId <= 0) {
+            $_SESSION['loan_success'] = 'User not found.';
+            return '';
+        }
+        $user = $userModel->GetById($userId);
+        $readerId = $user['reader_id'] ?? 0;
+        if ($readerId <= 0) {
+            $_SESSION['loan_success'] = 'Reader not found.';
+            return '';
+        }
+
+        $formBookOptions = $bookModel->getAll();
+        $formReaderOptions = $readerModel->getAll();
+
+        $this->handleLoanReturn($loanModel);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['loan_book_id'])) {
+            $bookId = (int) ($_POST['loan_book_id'] ?? 0);
+            $selectedReaderId = (int) ($_POST['reader_id'] ?? $readerId);
+            $dueDate = trim($_POST['due_date'] ?? '');
+            $status = trim($_POST['status'] ?? LoanStatus::CHECKED_OUT->value);
+            $renewals = (int) ($_POST['renewals'] ?? 0);
+
+            if ($bookId > 0 && $selectedReaderId > 0 && $dueDate !== '') {
+                $success = $loanModel->create([
+                    'book_id' => $bookId,
+                    'reader_id' => $selectedReaderId,
+                    'checkout_date' => date('Y-m-d'),
+                    'due_date' => $dueDate,
+                    'status' => $status,
+                    'renewals' => $renewals,
+                    'fee_amount' => 0.00,
+                ]);
+
+                $_SESSION['loan_success'] = $success
+                    ? 'Loan created successfully.'
+                    : 'Unable to create the loan.';
+            } else {
+                $_SESSION['loan_success'] = 'Please select a book and due date.';
+            }
+        }
+
+        $bookMap = [];
+        foreach ($formBookOptions as $book) {
+            $bookMap[(int) ($book['id'] ?? 0)] = $book;
+        }
+
+        $readerMap = [];
+        foreach ($formReaderOptions as $reader) {
+            $readerMap[(int) ($reader['id'] ?? 0)] = trim(
+                ($reader['first_name'] ?? '') . ' ' . ($reader['last_name'] ?? '')
+            );
+        }
+
+        $loanRows = [];
+        foreach ($loanModel->getAll() as $loan) {
+            if ($this->IsReturned($loan)) {
+                continue;
+            }
+
+            $book = $bookMap[(int) ($loan['book_id'] ?? 0)] ?? [];
+            $status = LoanStatus::fromValue($loan['status'] ?? null);
+            $dueDate = $loan['due_date'] ?? '';
+
+            $loanRows[] = [
+                'id' => (int) ($loan['id'] ?? 0),
+                'title' => $book['title'] ?? 'Unknown title',
+                'reader' => $readerMap[(int) ($loan['reader_id'] ?? 0)] ?? 'Unknown reader',
+                'due_date' => $dueDate !== '' ? (new DateTime($dueDate))->format('M j, Y') : '—',
+                'status' => $status->value,
+                'renewals' => (int) ($loan['renewals'] ?? 0),
+                'badge_class' => $status->badgeClass()->value,
+            ];
+        }
+
+        $successMessage = $_SESSION['loan_success'] ?? '';
+        unset($_SESSION['loan_success']);
+
+        ob_start();
+        require_once __DIR__ . '/../views/loan_management/loan_management.php';
 
         return ob_get_clean();
     }

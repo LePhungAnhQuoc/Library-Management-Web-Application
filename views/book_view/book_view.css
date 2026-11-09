@@ -86,6 +86,7 @@
 }
 
 .book-form textarea {
+    flex: 0 0 100%;
     min-height: 90px;
     height: 90px;
     width: 100%;
@@ -119,6 +120,7 @@
     border-radius: 8px;
     cursor: pointer;
     transition: opacity 0.2s, box-shadow 0.2s;
+    margin-left: auto;
 }
 
 .book-form button[type="submit"]:hover {
@@ -153,6 +155,11 @@
 }
 
 /* Table Styles */
+.book-table-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
 .book-table {
     width: 100%;
     border-collapse: collapse;
